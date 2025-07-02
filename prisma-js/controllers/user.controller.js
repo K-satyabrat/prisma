@@ -58,7 +58,16 @@ export const updateUser = async (req, res) => {
 //get all users
 export const getAllUsers = async (req, res) => {
   try {
-    const users = await prisma.user.findMany();
+    const users = await prisma.user.findMany({
+      include: {
+        posts: {
+          select: {
+            title: true,
+            comment_count: true,
+          },
+        },
+      },
+    });
     return res
       .status(200)
       .json({ message: "Users fetched successfully", users });
@@ -73,7 +82,12 @@ export const getAllUsers = async (req, res) => {
 export const getUserById = async (req, res) => {
   const { id } = req.params;
   try {
-    const user = await prisma.user.findUnique({ where: { id: Number(id) } });
+    const user = await prisma.user.findUnique({
+      where: { id: Number(id) },
+      include: {
+        posts: true,
+      },
+    });
     return res.status(200).json({ message: "User fetched successfully", user });
   } catch (error) {
     return res
@@ -81,7 +95,6 @@ export const getUserById = async (req, res) => {
       .json({ message: "Internal server error", error: error.message });
   }
 };
-
 
 //delete user
 export const deleteUser = async (req, res) => {
