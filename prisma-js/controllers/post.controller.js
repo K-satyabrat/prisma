@@ -1,4 +1,4 @@
-import prisma  from "../DB/db.config.js";
+import prisma from "../DB/db.config.js";
 
 export const createPost = async (req, res) => {
   const { userId, title, description } = req.body;
@@ -18,7 +18,19 @@ export const createPost = async (req, res) => {
 //get all posts
 export const getAllPosts = async (req, res) => {
   try {
-    const posts = await prisma.post.findMany();
+    const posts = await prisma.post.findMany({
+      include: {
+        comments: {
+          include: {
+            user: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
     return res
       .status(200)
       .json({ message: "Posts fetched successfully", posts });
